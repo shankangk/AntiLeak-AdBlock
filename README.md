@@ -20,24 +20,33 @@
 
 ---
 
-## 📥 规则订阅地址
+## 📥 规则订阅地址与二维码
 
-| 规则类型 | 说明 | 订阅地址 (Raw) |
-| :--- | :--- | :--- |
-| **整合强效版 (推荐)** | 防 DNS 泄露 + Johnshall 每日同步去广告 | `https://raw.githubusercontent.com/shankangk/Shadowrocket-AntiLeak-AdBlock/main/output/sr_ad_antileak.conf` |
-| **极简防泄露版** | 纯粹防 DNS 泄露与基础分流，不含庞大广告规则 | `https://raw.githubusercontent.com/shankangk/Shadowrocket-AntiLeak-AdBlock/main/output/Mini-AntiLeak.conf` |
+> 支持直接复制 Raw 订阅地址，或使用 **Shadowrocket / 系统相机** 扫描下方二维码一键下载添加：
+
+| 规则类型 | 说明 | 订阅地址 (Raw) | 扫码导入 (二维码) |
+| :--- | :--- | :--- | :---: |
+| **整合强效版<br>(推荐)** | 防 DNS 泄露 + Johnshall 每日同步去广告 | `https://raw.githubusercontent.com/shankangk/Shadowrocket-AntiLeak-AdBlock/main/output/sr_ad_antileak.conf` | <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https%3A%2F%2Fraw.githubusercontent.com%2Fshankangk%2FShadowrocket-AntiLeak-AdBlock%2Fmain%2Foutput%2Fsr_ad_antileak.conf" width="160" alt="整合强效版二维码" /> |
+| **极简防泄露版** | 纯粹防 DNS 泄露与基础分流，不含庞大广告规则 | `https://raw.githubusercontent.com/shankangk/Shadowrocket-AntiLeak-AdBlock/main/output/Mini-AntiLeak.conf` | <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https%3A%2F%2Fraw.githubusercontent.com%2Fshankangk%2FShadowrocket-AntiLeak-AdBlock%2Fmain%2Foutput%2FMini-AntiLeak.conf" width="160" alt="极简防泄露版二维码" /> |
 
 ---
 
 ## 📲 在 Shadowrocket 中使用
 
+### 方法一：扫描二维码导入（最便捷）
 1. 打开 **Shadowrocket** 客户端。
-2. 点击底部菜单栏的 **配置** (Config)。
-3. 点击右上角的 **➕** 号，将上述规则订阅地址粘贴到 **URL** 输入框中，点击 **下载**。
-4. 在规则列表中轻点刚下载的配置文件，选择 **使用配置**。
-5. **重要：防止 WebRTC 泄露**：
-   - 进入 Shadowrocket **设置** -> **UDP** -> 开启 **禁用 STUN** (Disable STUN 开关)。
-6. 断开并重新连接 Shadowrocket 开关以使新规则全面生效。
+2. 点击左上角的 **扫描图标**。
+3. 扫描上方表格中对应规则的二维码，点击 **保存** 即可完成导入。
+
+### 方法二：复制 URL 手动导入
+1. 复制上方表格中的 **Raw 订阅地址**。
+2. 打开 **Shadowrocket**，进入底部的 **配置** (Config) 页面。
+3. 点击右上角的 **➕** 号，将链接粘贴至 **URL** 处，点击 **下载**。
+4. 轻点已下载的配置文件，选择 **使用配置**。
+
+### 关键设置：封堵 WebRTC 泄露
+- 进入 Shadowrocket **设置** -> **UDP** -> 开启 **禁用 STUN** (Disable STUN 开关)。
+- 断开并重新连接 Shadowrocket 开关以使新规则全面生效。
 
 ---
 
