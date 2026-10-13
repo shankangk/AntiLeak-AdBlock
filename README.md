@@ -22,12 +22,10 @@
 
 ## 📥 规则订阅地址
 
-> 请将链接中的 `<你的GitHub用户名>` 与 `<仓库名>` 替换为您自己的实际仓库路径：
-
 | 规则类型 | 说明 | 订阅地址 (Raw) |
 | :--- | :--- | :--- |
-| **整合强效版 (推荐)** | 防 DNS 泄露 + Johnshall 每日同步去广告 | `https://raw.githubusercontent.com/<你的GitHub用户名>/<仓库名>/main/output/sr_ad_antileak.conf` |
-| **极简防泄露版** | 纯粹防 DNS 泄露与基础分流，不含庞大广告规则 | `https://raw.githubusercontent.com/<你的GitHub用户名>/<仓库名>/main/output/Mini-AntiLeak.conf` |
+| **整合强效版 (推荐)** | 防 DNS 泄露 + Johnshall 每日同步去广告 | `https://raw.githubusercontent.com/shankangk/Shadowrocket-AntiLeak-AdBlock/main/output/sr_ad_antileak.conf` |
+| **极简防泄露版** | 纯粹防 DNS 泄露与基础分流，不含庞大广告规则 | `https://raw.githubusercontent.com/shankangk/Shadowrocket-AntiLeak-AdBlock/main/output/Mini-AntiLeak.conf` |
 
 ---
 
@@ -63,7 +61,7 @@
 
 ### 第一步：在 GitHub 上创建新仓库
 1. 登录您的 GitHub 账号，访问 [https://github.com/new](https://github.com/new)。
-2. 仓库名称填写例如：`Shadowrocket-AntiLeak-AdBlock`。
+2. 仓库名称填写：`Shadowrocket-AntiLeak-AdBlock`。
 3. 设置为 **Public**（公开仓库）。
 4. **不要勾选** "Add a README file"（保持空仓库）。
 
@@ -75,42 +73,5 @@ git init
 git add .
 git commit -m "feat: initial commit with AntiLeak and AdBlock automation"
 git branch -M main
-git remote add origin https://github.com/<你的GitHub用户名>/<你的仓库名>.git
+git remote add origin [https://github.com/shankangk/Shadowrocket-AntiLeak-AdBlock.git](https://github.com/shankangk/Shadowrocket-AntiLeak-AdBlock.git)
 git push -u origin main
-```
-
-### 第三步：开启 GitHub Actions 写入权限
-为了让自动更新脚本每天能正常提交最新构建的规则：
-1. 打开您的 GitHub 仓库页面，点击 **Settings** -> **Actions** -> **General**。
-2. 页面下滑到 **Workflow permissions**，勾选 **Read and write permissions**。
-3. 点击 **Save** 保存。
-4. （可选）点击仓库上方的 **Actions** 标签页，在左侧选择 `Daily Auto-Update AntiLeak & AdBlock Rules`，点击右侧 **Run workflow** 进行首次自动化构建测试。
-
----
-
-## 🛠️ 项目目录结构
-
-```text
-├── .github/
-│   └── workflows/
-│       └── update_rules.yml      # GitHub Actions 每日定时构建工作流
-├── rules/
-│   └── Mini-AntiLeak.conf        # 防 DNS 泄露核心分流模板
-├── scripts/
-│   └── build.py                  # 自动化拉取上游广告规则与合并编译脚本
-├── output/
-│   ├── Mini-AntiLeak.conf        # 编译输出的极简防泄露规则
-│   └── sr_ad_antileak.conf       # 编译输出的防泄露+去广告整合规则
-├── LICENSE                       # MIT 开源协议
-├── .gitignore
-└── README.md                     # 项目使用与部署说明
-```
-
----
-
-## 🤝 鸣谢与参考
-
-- [Johnshall/Shadowrocket-ADBlock-Rules-Forever](https://github.com/Johnshall/Shadowrocket-ADBlock-Rules-Forever)（去广告规则数据源）
-- [xiaolin-007](https://github.com/xiaolin-007)（Mini-AntiLeak.conf 防泄露配置模型与教学）
-- [ACL4SSR](https://github.com/ACL4SSR/ACL4SSR)（经典国内外分流规则列表）
-- [Shadowrocket](https://www.shadowrocket.vip) 客户端团队
