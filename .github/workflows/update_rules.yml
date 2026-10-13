@@ -1,0 +1,47 @@
+name: Daily Auto-Update AntiLeak & AdBlock Rules
+
+on:
+  schedule:
+    # 每天北京时间 09:15 自动运行 (UTC 01:15)，紧随上游 Johnshall 每日 08:00 构建后执行
+    - cron: '15 1 * * *'
+  workflow_dispatch: # 支持在 GitHub Web 界面手动一键触发
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run Rule Builder
+        run: |
+          python3 scripts/build.py
+
+      - name: Check for Changes
+        id: git-check
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git status
+          if git diff --quiet output/; then
+            echo "changed=0" >> $GITHUB_OUTPUT
+            echo "无规则变更，跳过提交"
+          else
+            echo "changed=1" >> $GITHUB_OUTPUT
+            echo "检测到规则更新"
+          fi
+
+      - name: Commit and Push Rules
+        if: steps.git-check.outputs.changed == '1'
+        run: |
+          git add output/
+          git commit -m "Auto-update: Sync Johnshall AD rules & recompile AntiLeak conf [skip ci]"
+          git push
