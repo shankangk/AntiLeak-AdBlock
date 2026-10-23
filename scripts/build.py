@@ -25,6 +25,8 @@ TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), "../rules/Mini-AntiLeak.
 OUTPUT_FILE = os.path.join(os.path.dirname(__file__), "../output/sr_ad_antileak.conf")
 OUTPUT_MINI_FILE = os.path.join(os.path.dirname(__file__), "../output/Mini-AntiLeak.conf")
 CLASH_TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), "../clash/Meta-AntiLeak.yaml")
+CLASH_OVERRIDE_DIR = os.path.join(os.path.dirname(__file__), "../clash/override")
+CLASH_OVERRIDE_OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "../output/clash/override")
 CLASH_OUTPUT_FILE = os.path.join(os.path.dirname(__file__), "../output/clash/Meta-AntiLeak.yaml")
 CLASH_AD_OUTPUT_FILE = os.path.join(os.path.dirname(__file__), "../output/clash/ad_johnshall_clash.list")
 
@@ -231,6 +233,17 @@ def build_clash_outputs(ad_rules):
         print(f"已同步生成 Clash Meta 配置: {CLASH_OUTPUT_FILE}")
     else:
         print(f"警告: 未找到 Clash 模板 {CLASH_TEMPLATE_PATH}, 跳过 Clash 配置同步")
+
+    # 同步覆写文件 (模式 B: FlClash JS 脚本 / Clash Verge Merge) 到 output
+    if os.path.isdir(CLASH_OVERRIDE_DIR):
+        os.makedirs(CLASH_OVERRIDE_OUTPUT_DIR, exist_ok=True)
+        for name in sorted(os.listdir(CLASH_OVERRIDE_DIR)):
+            src = os.path.join(CLASH_OVERRIDE_DIR, name)
+            if os.path.isfile(src):
+                with open(src, "r", encoding="utf-8") as f_in:
+                    with open(os.path.join(CLASH_OVERRIDE_OUTPUT_DIR, name), "w", encoding="utf-8") as f_out:
+                        f_out.write(f_in.read())
+                print(f"已同步覆写文件: {name}")
 
     beijing_time = datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d %H:%M:%S")
     clash_rules = convert_ad_rules_to_clash(ad_rules)

@@ -1,0 +1,132 @@
+# =================================================================
+# AntiLeak 覆写 (Clash Verge Rev / Mihomo Party 的 Merge 覆写专用)
+# 作用: 保留机场订阅配置原样, 只叠加与模板版相同的防 DNS 泄露
+# 体系 + 广告拦截: fake-ip + respect-rules DNS、关 IPv6、TUN
+# strict-route + dns-hijack、STUN 拦截、GEOSITE 去广告前置。
+# 机场原有的分流规则与策略组全部保留; 新增策略组 AntiLeak
+# (include-all 自动包含机场全部节点) 仅供加密 DNS 指定出口。
+#
+# 用法 (Clash Verge Rev): 配置页新建一个「Merge」类型的覆写配置,
+# 把本文件内容粘贴进去, 再在你的机场订阅配置上启用这个覆写
+# (右键订阅 -> 启用覆写 / 在订阅的编辑里绑定), 重连生效。
+# =================================================================
+
+ipv6: false
+
+profile:
+  store-selected: true
+  store-fake-ip: true
+
+hosts:
+  localhost: 127.0.0.1
+
+sniffer:
+  enable: true
+  force-dns-mapping: true
+  parse-pure-ip: true
+  override-destination: true
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+
+tun:
+  enable: true
+  stack: mixed
+  dns-hijack:
+    - any:53
+    - tcp://any:53
+  auto-route: true
+  auto-detect-interface: true
+  strict-route: true
+  route-exclude-address:
+    - 10.0.0.0/8
+    - 100.64.0.0/10
+    - 127.0.0.0/8
+    - 169.254.0.0/16
+    - 172.16.0.0/12
+    - 192.0.0.0/24
+    - 192.0.2.0/24
+    - 192.168.0.0/16
+    - 198.51.100.0/24
+    - 203.0.113.0/24
+    - 224.0.0.0/4
+    - 255.255.255.255/32
+
+dns:
+  enable: true
+  listen: 0.0.0.0:1053
+  ipv6: false
+  respect-rules: true
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter:
+    - "*.lan"
+    - "*.local"
+    - localhost
+    - time.*.com
+    - time.*.gov
+    - time.*.edu.cn
+    - time.*.apple.com
+    - time-ios.apple.com
+    - time1.*.com
+    - time2.*.com
+    - time3.*.com
+    - time4.*.com
+    - time5.*.com
+    - time6.*.com
+    - time7.*.com
+    - ntp.*.com
+    - ntp1.*.com
+    - ntp2.*.com
+    - ntp3.*.com
+    - ntp4.*.com
+    - ntp5.*.com
+    - ntp6.*.com
+    - ntp7.*.com
+    - "*.ntp.org.cn"
+    - +.pool.ntp.org
+    - +.stun.*.*
+    - +.stun.*.*.*
+    - connectivitycheck.gstatic.com
+    - www.msftconnecttest.com
+    - www.msftncsi.com
+    - dns.msftncsi.com
+  default-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+  proxy-server-nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  nameserver:
+    - https://cloudflare-dns.com/dns-query#AntiLeak
+    - https://dns.google/dns-query#AntiLeak
+  direct-nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  direct-nameserver-follow-policy: true
+  nameserver-policy:
+    "geosite:cn,private":
+      - https://dns.alidns.com/dns-query
+      - https://doh.pub/dns-query
+
+prepend-proxy-groups:
+  # DNS 出口组: 自动包含机场全部节点与策略组, 默认选中第一个节点
+  - name: AntiLeak
+    type: select
+    include-all: true
+
+prepend-rules:
+  # WebRTC 防泄露: STUN 拦截
+  - AND,((NETWORK,udp),(DST-PORT,3478)),REJECT
+  - AND,((NETWORK,udp),(DST-PORT,19302)),REJECT
+  - DOMAIN-SUFFIX,stun.l.google.com,REJECT
+  # 广告拦截: Merge 模式无法安全叠加远程规则集 (写 rule-providers
+  # 会整段替换机场自带的), 这里只用内核内置的 GEOSITE 广告分类。
+  # 想要 Johnshall 6 万条全量规则, 请改用同目录的 JS 脚本覆写
+  # (AntiLeak-Override.js, Clash Verge 的 Script 模式同样可用)。
+  - GEOSITE,category-ads-all,REJECT

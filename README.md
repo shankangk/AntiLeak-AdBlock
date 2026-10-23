@@ -75,7 +75,18 @@
 Shadowrocket 是「节点订阅 + 规则配置」两层分开添加的；**Clash / Mihomo 没有独立的规则配置层**，一份 YAML 同时管节点、DNS 与规则，所以不能像小火箭那样在已有订阅上再叠一个规则文件。Clash 版对应有两种用法：
 
 - **模式 A（模板模式，推荐，即上表这份配置）**：把 `Meta-AntiLeak.yaml` 导入为**唯一配置**，你的机场订阅链接只填到 `proxy-providers` 一处。之后节点由模板按 `interval` 每日自动拉取更新，效果等同于直接订阅机场，**不需要再单独导入机场配置**，两边也不会打架。
-- **模式 B（覆写模式）**：保留你已导入的机场配置，在支持「覆写 / Override」的客户端（FlClash、桌面端 Clash Verge 等）上叠加一层，只改 DNS / TUN 并前置防泄露与去广告规则。机场自带的策略组名称各不相同，覆写版需要按客户端适配；Clash Meta for Android 不支持完整覆写，请用模式 A。
+- **模式 B（覆写模式）**：保留你已导入的机场配置，在支持「覆写 / Override」的客户端上叠加一层，只改 DNS / TUN 并前置防泄露与去广告规则，机场原有分流与策略组全部保留。本仓库提供两个覆写文件（见下节）：JS 脚本版（FlClash、Clash Verge Rev 的 Script 模式通用，全量规则）与 Merge 版（Clash Verge Rev 专用，去广告仅内置 GEOSITE 分类）。Clash Meta for Android 不支持完整覆写，请用模式 A。
+
+### 模式 B：覆写文件与用法
+
+| 文件 | 适用客户端 | 地址 (Raw) |
+| :--- | :--- | :--- |
+| **AntiLeak-Override.js**（推荐） | FlClash（脚本覆写）、Clash Verge Rev（Script 覆写） | `https://raw.githubusercontent.com/shankangk/AntiLeak-AdBlock/main/output/clash/override/AntiLeak-Override.js` |
+| **AntiLeak-Merge.yaml** | Clash Verge Rev（Merge 覆写） | `https://raw.githubusercontent.com/shankangk/AntiLeak-AdBlock/main/output/clash/override/AntiLeak-Merge.yaml` |
+
+- **FlClash**：打开机场配置 → **覆写** → **脚本** → 把 JS 文件全文粘贴进去 → 保存并启用该覆写 → 断开重连一次。
+- **Clash Verge Rev**：新建覆写并绑定到机场订阅：选 **Script** 类型时用上面的 JS 文件（与 FlClash 同一份，全量 Johnshall 去广告规则）；选 **Merge** 类型时用 Merge 版 YAML。注意 Merge 机制对 `rule-providers` 是整段替换、无法安全叠加远程规则集，所以 Merge 版的去广告只有内核内置的 `GEOSITE category-ads-all`，其余防泄露部分（fake-ip DNS、TUN、STUN 拦截）与 JS 版一致。
+- 两种覆写都会新增一个 **AntiLeak** 策略组（`include-all` 自动包含你的全部节点），仅作为加密 DNS 的指定出口，不影响你在机场策略组里的任何选择；随时关掉覆写即可完整还原机场配置。
 
 ### Android 关键设置
 
