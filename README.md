@@ -1,4 +1,6 @@
-# Shadowrocket-AntiLeak-AdBlock 🛡️
+# AntiLeak-AdBlock 🛡️
+
+> **Shadowrocket (iOS) × Clash Meta (Android / 跨平台)** —— 防 DNS 泄露 + 广告拦截双平台整合规则
 
 提供针对 iOS **Shadowrocket (小火箭)** 与 Android **Clash Meta (Mihomo)** 的**防 DNS 泄露**与**全能广告拦截**整合规则配置，两端同源同防护模型，支持 GitHub Actions 每日北京时间 09:15 自动定时构建更新。
 
