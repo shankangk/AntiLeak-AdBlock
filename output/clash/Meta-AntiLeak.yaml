@@ -205,7 +205,7 @@ rule-providers:
   # Johnshall 广告规则的 Clash 转换版, 与 iOS 版同源同日自动构建
   JohnshallAD:
     <<: *classical
-    url: "https://raw.githubusercontent.com/shankangk/Shadowrocket-AntiLeak-AdBlock/main/output/clash/ad_johnshall_clash.list"
+    url: "https://raw.githubusercontent.com/shankangk/AntiLeak-AdBlock/main/output/clash/ad_johnshall_clash.list"
     path: ./ruleset/ad_johnshall_clash.list
   # 以下与 iOS 版 Mini-AntiLeak.conf 引用的 ACL4SSR 规则集完全一致
   BanAD:

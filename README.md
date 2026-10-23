@@ -32,8 +32,8 @@
 
 | 规则类型 | 说明 | 订阅地址 (Raw) | 扫码导入 (二维码) |
 | :--- | :--- | :--- | :---: |
-| **整合强效版<br>(推荐)** | 防 DNS 泄露 + Johnshall 每日同步去广告 | `https://raw.githubusercontent.com/shankangk/Shadowrocket-AntiLeak-AdBlock/main/output/sr_ad_antileak.conf` | <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https%3A%2F%2Fraw.githubusercontent.com%2Fshankangk%2FShadowrocket-AntiLeak-AdBlock%2Fmain%2Foutput%2Fsr_ad_antileak.conf" width="160" alt="整合强效版二维码" /> |
-| **极简防泄露版** | 纯粹防 DNS 泄露与基础分流，不含庞大广告规则 | `https://raw.githubusercontent.com/shankangk/Shadowrocket-AntiLeak-AdBlock/main/output/Mini-AntiLeak.conf` | <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https%3A%2F%2Fraw.githubusercontent.com%2Fshankangk%2FShadowrocket-AntiLeak-AdBlock%2Fmain%2Foutput%2FMini-AntiLeak.conf" width="160" alt="极简防泄露版二维码" /> |
+| **整合强效版<br>(推荐)** | 防 DNS 泄露 + Johnshall 每日同步去广告 | `https://raw.githubusercontent.com/shankangk/AntiLeak-AdBlock/main/output/sr_ad_antileak.conf` | <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https%3A%2F%2Fraw.githubusercontent.com%2Fshankangk%2FAntiLeak-AdBlock%2Fmain%2Foutput%2Fsr_ad_antileak.conf" width="160" alt="整合强效版二维码" /> |
+| **极简防泄露版** | 纯粹防 DNS 泄露与基础分流，不含庞大广告规则 | `https://raw.githubusercontent.com/shankangk/AntiLeak-AdBlock/main/output/Mini-AntiLeak.conf` | <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https%3A%2F%2Fraw.githubusercontent.com%2Fshankangk%2FAntiLeak-AdBlock%2Fmain%2Foutput%2FMini-AntiLeak.conf" width="160" alt="极简防泄露版二维码" /> |
 
 ---
 
@@ -60,7 +60,7 @@
 
 | 规则类型 | 说明 | 配置地址 (Raw) | 扫码导入 (二维码) |
 | :--- | :--- | :--- | :---: |
-| **Clash Meta 完整版 (推荐)** | 防 DNS 泄露 + 去广告完整 Mihomo 配置，与 iOS 版同源 | `https://raw.githubusercontent.com/shankangk/Shadowrocket-AntiLeak-AdBlock/main/output/clash/Meta-AntiLeak.yaml` | <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https%3A%2F%2Fraw.githubusercontent.com%2Fshankangk%2FShadowrocket-AntiLeak-AdBlock%2Fmain%2Foutput%2Fclash%2FMeta-AntiLeak.yaml" width="160" alt="Clash Meta 版二维码" /> |
+| **Clash Meta 完整版 (推荐)** | 防 DNS 泄露 + 去广告完整 Mihomo 配置，与 iOS 版同源 | `https://raw.githubusercontent.com/shankangk/AntiLeak-AdBlock/main/output/clash/Meta-AntiLeak.yaml` | <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https%3A%2F%2Fraw.githubusercontent.com%2Fshankangk%2FAntiLeak-AdBlock%2Fmain%2Foutput%2Fclash%2FMeta-AntiLeak.yaml" width="160" alt="Clash Meta 版二维码" /> |
 
 > 本仓库不提供任何节点。配置里有**一处必改**：`proxy-providers` 中 `MySubscribe` 的 `url`，换成你自己的订阅链接即可（机场订阅链接可直接填，只取其中节点部分）；也可以删掉 `proxy-providers`，把节点手写进 `proxies:`。
 
@@ -99,7 +99,7 @@
 
 ### 第一步：在 GitHub 上创建新仓库
 1. 登录您的 GitHub 账号，访问 [https://github.com/new](https://github.com/new)。
-2. 仓库名称填写：`Shadowrocket-AntiLeak-AdBlock`。
+2. 仓库名称填写：`AntiLeak-AdBlock`。
 3. 设置为 **Public**（公开仓库）。
 4. **不要勾选** "Add a README file"（保持空仓库）。
 
@@ -111,5 +111,5 @@ git init
 git add .
 git commit -m "feat: initial commit with AntiLeak and AdBlock automation"
 git branch -M main
-git remote add origin [https://github.com/shankangk/Shadowrocket-AntiLeak-AdBlock.git](https://github.com/shankangk/Shadowrocket-AntiLeak-AdBlock.git)
+git remote add origin [https://github.com/shankangk/AntiLeak-AdBlock.git](https://github.com/shankangk/AntiLeak-AdBlock.git)
 git push -u origin main
