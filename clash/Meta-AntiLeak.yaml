@@ -1,0 +1,283 @@
+# =================================================================
+# Clash Meta (Mihomo) 防 DNS 泄露 + 广告拦截配置 (Android / 跨平台)
+# 与 iOS 版 Mini-AntiLeak.conf 一一对应的移植版, 防护模型完全一致:
+#  1. ipv6: false 全局关闭 IPv6 解析, 封堵运营商 IPv6 DNS 劫持/泄露
+#     (对应 Shadowrocket: ipv6 = false / prefer-ipv6 = false)
+#  2. DNS 使用 fake-ip 模式: 未直连的域名不做本地真实解析, 只发假 IP,
+#     应用连接时把原始域名交给代理节点远端解析, 本地运营商零记录
+#     (对应 Shadowrocket: FINAL,PROXY 远端解析)
+#  3. respect-rules: true: DNS 查询本身也按分流规则走 —— 国内域名用
+#     国内加密 DoH 直连解析, 国外域名用国外 DoH 并经代理发出
+#     (对应 Shadowrocket: dns-direct-system = false +
+#      dns-direct-fallback-proxy = true, 直连绝不走系统明文 DNS)
+#  4. 所有 IP-CIDR / GEOIP 国内规则强制 no-resolve, 防止为匹配 IP
+#     规则而对域名做预解析 (与 iOS 版同名机制)
+#  5. TUN strict-route + dns-hijack 接管全部 53 端口查询, STUN 拦截
+#     封堵 WebRTC 泄露 (对应 Shadowrocket 的「禁用 STUN」开关)
+#  6. 广告拦截与 iOS 版同源: Johnshall 每日规则 (由 scripts/build.py
+#     自动转换成 Clash 格式) + ACL4SSR BanAD/BanProgramAD +
+#     GEOSITE category-ads-all 三层 REJECT
+#
+# 【使用前必改一处】把下方 proxy-providers 中 MySubscribe 的 url
+# 换成你自己的订阅链接 (机场订阅链接可直接填, 只取其中节点部分),
+# 或删掉 proxy-providers / use 字段, 把节点手写进 proxies:。
+# 适用于 Android: FlClash / Clash Meta for Android;
+# 桌面端 Clash Verge / Mihomo Party 同样可用。
+# =================================================================
+
+mixed-port: 7890
+allow-lan: false
+bind-address: 127.0.0.1
+mode: rule
+log-level: info
+ipv6: false
+unified-delay: true
+tcp-concurrent: true
+find-process-mode: strict
+# Android 客户端 (FlClash / CMFA) 通常会接管控制端口, 此项仅桌面端生效
+external-controller: 127.0.0.1:9090
+
+profile:
+  store-selected: true
+  store-fake-ip: true
+
+# 域名嗅探: 应用绕开系统 DNS 直连 IP 时, 从 TLS SNI / HTTP Host 还原
+# 域名重新按域名规则分流, 堵住「应用自带 DNS 解析」造成的泄露与绕行
+sniffer:
+  enable: true
+  force-dns-mapping: true
+  parse-pure-ip: true
+  override-destination: true
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+
+# TUN 接管 (Android 上即 VPN 模式): dns-hijack 劫持全部 DNS 查询,
+# strict-route 阻止应用绕过 TUN 直连, 杜绝 DNS 与流量双通道泄露
+tun:
+  enable: true
+  stack: mixed
+  dns-hijack:
+    - any:53
+    - tcp://any:53
+  auto-route: true
+  auto-detect-interface: true
+  strict-route: true
+  # 局域网/保留地址不进 TUN (对应 Shadowrocket tun-excluded-routes)
+  route-exclude-address:
+    - 10.0.0.0/8
+    - 100.64.0.0/10
+    - 127.0.0.0/8
+    - 169.254.0.0/16
+    - 172.16.0.0/12
+    - 192.0.0.0/24
+    - 192.0.2.0/24
+    - 192.168.0.0/16
+    - 198.51.100.0/24
+    - 203.0.113.0/24
+    - 224.0.0.0/4
+    - 255.255.255.255/32
+
+dns:
+  enable: true
+  listen: 0.0.0.0:1053
+  ipv6: false
+  respect-rules: true
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  # 以下域名不用 fake-ip (局域网、授时、连通性检测, 对应 iOS 版
+  # skip-proxy 中的 localhost / *.local / captive.apple.com)
+  fake-ip-filter:
+    - "*.lan"
+    - "*.local"
+    - localhost
+    - time.*.com
+    - time.*.gov
+    - time.*.edu.cn
+    - time.*.apple.com
+    - time-ios.apple.com
+    - time1.*.com
+    - time2.*.com
+    - time3.*.com
+    - time4.*.com
+    - time5.*.com
+    - time6.*.com
+    - time7.*.com
+    - ntp.*.com
+    - ntp1.*.com
+    - ntp2.*.com
+    - ntp3.*.com
+    - ntp4.*.com
+    - ntp5.*.com
+    - ntp6.*.com
+    - ntp7.*.com
+    - "*.ntp.org.cn"
+    - +.pool.ntp.org
+    - +.stun.*.*
+    - +.stun.*.*.*
+    - connectivitycheck.gstatic.com
+    - www.msftconnecttest.com
+    - www.msftncsi.com
+    - dns.msftncsi.com
+  # 仅用于解析下面 DoH 服务器自身的域名 (bootstrap), 不处理普通查询
+  default-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+  # 仅用于解析代理节点服务器域名
+  proxy-server-nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  # 默认解析: 国外加密 DoH, 且经 PROXY 策略组发出, 运营商看不到查询
+  nameserver:
+    - https://cloudflare-dns.com/dns-query#PROXY
+    - https://dns.google/dns-query#PROXY
+  # 直连解析: 国内加密 DoH (仅解析命中直连规则的国内域名)
+  direct-nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  direct-nameserver-follow-policy: true
+  nameserver-policy:
+    "geosite:cn,private":
+      - https://dns.alidns.com/dns-query
+      - https://doh.pub/dns-query
+
+hosts:
+  localhost: 127.0.0.1
+
+# ============ 节点来源 (二选一) ============
+# 本仓库不提供任何节点。把 url 换成你自己的订阅链接即可。
+proxies: []
+
+proxy-providers:
+  MySubscribe:
+    type: http
+    # ↓↓↓ 必改: 替换为你自己的订阅链接 ↓↓↓
+    url: "https://example.com/replace-with-your-subscription-url"
+    interval: 86400
+    path: ./proxy_providers/MySubscribe.yaml
+    health-check:
+      enable: true
+      url: https://www.gstatic.com/generate_204
+      interval: 300
+      lazy: true
+
+proxy-groups:
+  # 主策略组, 名称与 iOS 版 FINAL,PROXY 对应 (DNS 的 #PROXY 也指向它)
+  - name: PROXY
+    type: select
+    use:
+      - MySubscribe
+    proxies:
+      - AUTO
+      - DIRECT
+  - name: AUTO
+    type: url-test
+    use:
+      - MySubscribe
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    lazy: true
+
+# GEO 数据自动更新 (GEOSITE / GEOIP 规则依赖)
+geodata-mode: true
+geo-auto-update: true
+geo-update-interval: 24
+geox-url:
+  geoip: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.dat"
+  geosite: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat"
+  mmdb: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/country.mmdb"
+  asn: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/GeoLite2-ASN.mmdb"
+
+rule-anchor:
+  classical: &classical
+    type: http
+    interval: 86400
+    behavior: classical
+    format: text
+
+rule-providers:
+  # Johnshall 广告规则的 Clash 转换版, 与 iOS 版同源同日自动构建
+  JohnshallAD:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/shankangk/Shadowrocket-AntiLeak-AdBlock/main/output/clash/ad_johnshall_clash.list"
+    path: ./ruleset/ad_johnshall_clash.list
+  # 以下与 iOS 版 Mini-AntiLeak.conf 引用的 ACL4SSR 规则集完全一致
+  BanAD:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanAD.list"
+    path: ./ruleset/BanAD.list
+  BanProgramAD:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanProgramAD.list"
+    path: ./ruleset/BanProgramAD.list
+  LocalAreaNetwork:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/LocalAreaNetwork.list"
+    path: ./ruleset/LocalAreaNetwork.list
+  UnBan:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/UnBan.list"
+    path: ./ruleset/UnBan.list
+  GoogleCN:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/GoogleCN.list"
+    path: ./ruleset/GoogleCN.list
+  ChinaDomain:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaDomain.list"
+    path: ./ruleset/ChinaDomain.list
+  ChinaMedia:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaMedia.list"
+    path: ./ruleset/ChinaMedia.list
+  Apple:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Apple.list"
+    path: ./ruleset/Apple.list
+  ChinaCompanyIp:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaCompanyIp.list"
+    path: ./ruleset/ChinaCompanyIp.list
+  ChinaIp:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaIp.list"
+    path: ./ruleset/ChinaIp.list
+
+rules:
+  # ---- 0. WebRTC 防泄露: 拦截 STUN 探测 (对应 iOS 版禁用 STUN) ----
+  - AND,((NETWORK,udp),(DST-PORT,3478)),REJECT
+  - AND,((NETWORK,udp),(DST-PORT,19302)),REJECT
+  - DOMAIN-SUFFIX,stun.l.google.com,REJECT
+
+  # ---- 1. 广告与追踪拦截 (与 iOS 版同源) ----
+  - RULE-SET,JohnshallAD,REJECT
+  - RULE-SET,BanAD,REJECT
+  - RULE-SET,BanProgramAD,REJECT
+  - GEOSITE,category-ads-all,REJECT
+
+  # ---- 2. 局域网与本地直连 ----
+  - RULE-SET,LocalAreaNetwork,DIRECT
+  - RULE-SET,UnBan,DIRECT
+  - GEOSITE,private,DIRECT
+
+  # ---- 3. 国内域名直连 (按域名命中, 不触发其他域名解析) ----
+  - RULE-SET,GoogleCN,DIRECT
+  - RULE-SET,ChinaDomain,DIRECT
+  - RULE-SET,ChinaMedia,DIRECT
+  - RULE-SET,Apple,DIRECT
+  - GEOSITE,cn,DIRECT
+
+  # ---- 4. 国内 IP 段 (强制 no-resolve, 与 iOS 版一致) ----
+  - RULE-SET,ChinaCompanyIp,DIRECT,no-resolve
+  - RULE-SET,ChinaIp,DIRECT,no-resolve
+  - GEOIP,private,DIRECT,no-resolve
+  - GEOIP,CN,DIRECT,no-resolve
+
+  # ---- 5. 兜底: 其余全部走代理并在节点远端解析 (对应 FINAL,PROXY) ----
+  - MATCH,PROXY

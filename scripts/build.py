@@ -5,6 +5,8 @@ Shadowrocket AntiLeak & AdBlock 规则自动构建与合并脚本
 数据源:
 - 广告过滤: Johnshall/Shadowrocket-ADBlock-Rules-Forever (sr_ad_only.conf)
 - 防 DNS 泄露分流模板: Mini-AntiLeak.conf (基于 xiaolin-007 与 ACL4SSR 最佳实践)
+- Android/跨平台: 同步输出 Clash Meta (Mihomo) 配置与转换后的广告规则集
+  (模板 clash/Meta-AntiLeak.yaml -> output/clash/, 与 iOS 版同源同日构建)
 """
 
 import os
@@ -22,6 +24,9 @@ UPSTREAM_AD_URLS = [
 TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), "../rules/Mini-AntiLeak.conf")
 OUTPUT_FILE = os.path.join(os.path.dirname(__file__), "../output/sr_ad_antileak.conf")
 OUTPUT_MINI_FILE = os.path.join(os.path.dirname(__file__), "../output/Mini-AntiLeak.conf")
+CLASH_TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), "../clash/Meta-AntiLeak.yaml")
+CLASH_OUTPUT_FILE = os.path.join(os.path.dirname(__file__), "../output/clash/Meta-AntiLeak.yaml")
+CLASH_AD_OUTPUT_FILE = os.path.join(os.path.dirname(__file__), "../output/clash/ad_johnshall_clash.list")
 
 def fetch_upstream_ad_rules():
     """从上游仓库拉取最新的仅去广告规则"""
@@ -177,6 +182,67 @@ localhost = 127.0.0.1
 
     return header + rules_body + middle
 
+# Clash classical 规则集支持的规则类型 (与 Shadowrocket 的交集)
+CLASH_SUPPORTED_TYPES = {
+    "DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-KEYWORD",
+    "IP-CIDR", "IP-CIDR6", "GEOIP",
+}
+
+def convert_ad_rules_to_clash(ad_rules):
+    """把 Shadowrocket 格式的去广告规则转换为 Clash classical 规则集格式。
+
+    转换规则: 去掉行尾的策略 (REJECT 等, 统一由引用处的 RULE-SET,...,REJECT
+    指定); IP 类规则保留/补齐 no-resolve; Clash 不支持的规则类型跳过并计数。
+    """
+    clash_rules = []
+    seen = set()
+    skipped = 0
+    for line in ad_rules:
+        parts = [p.strip() for p in line.split(",")]
+        if len(parts) < 2:
+            skipped += 1
+            continue
+        rule_type = parts[0].upper()
+        value = parts[1]
+        if rule_type not in CLASH_SUPPORTED_TYPES or not value:
+            skipped += 1
+            continue
+        converted = f"{rule_type},{value}"
+        if rule_type in ("IP-CIDR", "IP-CIDR6", "GEOIP"):
+            converted += ",no-resolve"
+        if converted not in seen:
+            seen.add(converted)
+            clash_rules.append(converted)
+    print(f"Clash 广告规则转换完成: {len(clash_rules)} 条 (跳过不支持类型 {skipped} 条)")
+    return clash_rules
+
+def build_clash_outputs(ad_rules):
+    """生成 Android/跨平台 Clash Meta (Mihomo) 输出:
+    1. 复制 clash/Meta-AntiLeak.yaml 模板到 output/clash/
+    2. 把 Johnshall 去广告规则转换为 Clash classical 规则集, 供模板以
+       RULE-SET,JohnshallAD,REJECT 远程引用, 与 iOS 版每日同步更新
+    """
+    os.makedirs(os.path.dirname(CLASH_OUTPUT_FILE), exist_ok=True)
+
+    if os.path.exists(CLASH_TEMPLATE_PATH):
+        with open(CLASH_TEMPLATE_PATH, "r", encoding="utf-8") as f_in:
+            with open(CLASH_OUTPUT_FILE, "w", encoding="utf-8") as f_out:
+                f_out.write(f_in.read())
+        print(f"已同步生成 Clash Meta 配置: {CLASH_OUTPUT_FILE}")
+    else:
+        print(f"警告: 未找到 Clash 模板 {CLASH_TEMPLATE_PATH}, 跳过 Clash 配置同步")
+
+    beijing_time = datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d %H:%M:%S")
+    clash_rules = convert_ad_rules_to_clash(ad_rules)
+    header = f"""# Johnshall 去广告规则 (Clash classical 格式, 由 scripts/build.py 自动转换)
+# 来源: Johnshall/Shadowrocket-ADBlock-Rules-Forever (sr_ad_only.conf)
+# 构建时间: {beijing_time} (UTC+8), 共 {len(clash_rules)} 条
+# 用法: RULE-SET,JohnshallAD,REJECT (策略由引用处指定, 本文件不带策略)
+"""
+    with open(CLASH_AD_OUTPUT_FILE, "w", encoding="utf-8") as f:
+        f.write(header + "\n".join(clash_rules) + "\n")
+    print(f"已生成 Clash 广告规则集: {CLASH_AD_OUTPUT_FILE} (共 {len(clash_rules)} 条)")
+
 def main():
     os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
     
@@ -196,6 +262,9 @@ def main():
         f.write(combined_content)
 
     print(f"构建完成! 完整规则文件输出至: {OUTPUT_FILE} (共包含广告规则 {len(ad_rules)} 条)")
+
+    # 同步生成 Android/跨平台 Clash Meta 配置与规则集
+    build_clash_outputs(ad_rules)
 
 if __name__ == "__main__":
     main()

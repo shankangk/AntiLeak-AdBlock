@@ -1,6 +1,6 @@
 # Shadowrocket-AntiLeak-AdBlock 🛡️
 
-提供针对 iOS **Shadowrocket (小火箭)** 的**防 DNS 泄露**与**全能广告拦截**整合规则配置，支持 GitHub Actions 每日北京时间 09:15 自动定时构建更新。
+提供针对 iOS **Shadowrocket (小火箭)** 与 Android **Clash Meta (Mihomo)** 的**防 DNS 泄露**与**全能广告拦截**整合规则配置，两端同源同防护模型，支持 GitHub Actions 每日北京时间 09:15 自动定时构建更新。
 
 ---
 
@@ -15,6 +15,10 @@
 - **强效广告与追踪过滤**：
   - 上游自动同步 [Johnshall/Shadowrocket-ADBlock-Rules-Forever](https://github.com/Johnshall/Shadowrocket-ADBlock-Rules-Forever) 的 `仅去广告规则 (sr_ad_only.conf)`。
   - 覆盖 iOS 常见 App 开屏广告、SDK 追踪（穿山甲、优量汇、友盟等）以及视频/网页广告。
+- **Android / 跨平台 Clash Meta 版**：
+  - 与 iOS 版一一对应的 Mihomo 配置 `Meta-AntiLeak.yaml`：`fake-ip` + `respect-rules` 实现境外域名远端解析、国内域名加密 DoH 直连解析；`strict-route` + `dns-hijack` 接管全部 DNS；STUN 规则拦截封堵 WebRTC 泄露；国内 IP 规则同样强制 `no-resolve`。
+  - 广告规则同源：Johnshall 规则每日由构建脚本自动转换为 Clash 格式，ACL4SSR 规则集与 iOS 版完全一致。适用于 FlClash、Clash Meta for Android，桌面端 Clash Verge / Mihomo Party 亦可使用。
+
 - **自动化免维护**：
   - 内置 GitHub Actions 工作流，每天自动拉取上游最新规则并合并构建发布。
 
@@ -47,6 +51,29 @@
 ### 关键设置：封堵 WebRTC 泄露
 - 进入 Shadowrocket **设置** -> **UDP** -> 开启 **禁用 STUN** (Disable STUN 开关)。
 - 断开并重新连接 Shadowrocket 开关以使新规则全面生效。
+
+---
+
+## 🤖 在 Android 上使用 (Clash Meta / Mihomo)
+
+| 规则类型 | 说明 | 配置地址 (Raw) | 扫码导入 (二维码) |
+| :--- | :--- | :--- | :---: |
+| **Clash Meta 完整版 (推荐)** | 防 DNS 泄露 + 去广告完整 Mihomo 配置，与 iOS 版同源 | `https://raw.githubusercontent.com/shankangk/Shadowrocket-AntiLeak-AdBlock/main/output/clash/Meta-AntiLeak.yaml` | <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https%3A%2F%2Fraw.githubusercontent.com%2Fshankangk%2FShadowrocket-AntiLeak-AdBlock%2Fmain%2Foutput%2Fclash%2FMeta-AntiLeak.yaml" width="160" alt="Clash Meta 版二维码" /> |
+
+> 本仓库不提供任何节点。配置里有**一处必改**：`proxy-providers` 中 `MySubscribe` 的 `url`，换成你自己的订阅链接即可（机场订阅链接可直接填，只取其中节点部分）；也可以删掉 `proxy-providers`，把节点手写进 `proxies:`。
+
+### 导入步骤 (FlClash 为例)
+
+1. 打开上方 Raw 地址，复制全文，把 `MySubscribe` 的 `url` 改成你的订阅链接，保存为 `.yaml` 文件。
+2. FlClash → **配置** → 右上角 **➕** → **从文件导入**，选择该文件并启用。
+3. Clash Meta for Android 同理：**Profiles** → **New profile** → **File** 导入；在桌面端 Clash Verge / Mihomo Party 中作为本地配置导入亦可。
+
+### Android 关键设置
+
+1. **关闭系统「私人 DNS」**：设置 → 网络和互联网 → 私人 DNS，选「关闭」或「自动」，不要指定第三方 DoT 服务器，否则 DNS 会绕过本配置的接管。
+2. **关闭浏览器自带安全 DNS**：Chrome → 设置 → 隐私和安全 → 使用安全 DNS，选「使用当前服务提供商」或关闭，避免浏览器 DoH 绕行。
+3. **确认 TUN/VPN 模式已开启**（FlClash 默认开启）。WebRTC 的 STUN 探测已由配置内规则拦截，无需像 iOS 版那样再找开关。
+4. 断开重连一次使配置全面生效，泄露检测方法见下一节（用 Chrome 访问即可）。
 
 ---
 
