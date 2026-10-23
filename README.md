@@ -70,6 +70,13 @@
 2. FlClash → **配置** → 右上角 **➕** → **从文件导入**，选择该文件并启用。
 3. Clash Meta for Android 同理：**Profiles** → **New profile** → **File** 导入；在桌面端 Clash Verge / Mihomo Party 中作为本地配置导入亦可。
 
+### ❓ Clash 的用法和 Shadowrocket 不一样
+
+Shadowrocket 是「节点订阅 + 规则配置」两层分开添加的；**Clash / Mihomo 没有独立的规则配置层**，一份 YAML 同时管节点、DNS 与规则，所以不能像小火箭那样在已有订阅上再叠一个规则文件。Clash 版对应有两种用法：
+
+- **模式 A（模板模式，推荐，即上表这份配置）**：把 `Meta-AntiLeak.yaml` 导入为**唯一配置**，你的机场订阅链接只填到 `proxy-providers` 一处。之后节点由模板按 `interval` 每日自动拉取更新，效果等同于直接订阅机场，**不需要再单独导入机场配置**，两边也不会打架。
+- **模式 B（覆写模式）**：保留你已导入的机场配置，在支持「覆写 / Override」的客户端（FlClash、桌面端 Clash Verge 等）上叠加一层，只改 DNS / TUN 并前置防泄露与去广告规则。机场自带的策略组名称各不相同，覆写版需要按客户端适配；Clash Meta for Android 不支持完整覆写，请用模式 A。
+
 ### Android 关键设置
 
 1. **关闭系统「私人 DNS」**：设置 → 网络和互联网 → 私人 DNS，选「关闭」或「自动」，不要指定第三方 DoT 服务器，否则 DNS 会绕过本配置的接管。
