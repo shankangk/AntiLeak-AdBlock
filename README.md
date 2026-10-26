@@ -35,6 +35,15 @@
 | **整合强效版<br>(推荐)** | 防 DNS 泄露 + Johnshall 每日同步去广告 | `https://raw.githubusercontent.com/shankangk/AntiLeak-AdBlock/main/output/sr_ad_antileak.conf` | <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https%3A%2F%2Fraw.githubusercontent.com%2Fshankangk%2FAntiLeak-AdBlock%2Fmain%2Foutput%2Fsr_ad_antileak.conf" width="160" alt="整合强效版二维码" /> |
 | **极简防泄露版** | 纯粹防 DNS 泄露与基础分流，不含庞大广告规则 | `https://raw.githubusercontent.com/shankangk/AntiLeak-AdBlock/main/output/Mini-AntiLeak.conf` | <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https%3A%2F%2Fraw.githubusercontent.com%2Fshankangk%2FAntiLeak-AdBlock%2Fmain%2Foutput%2FMini-AntiLeak.conf" width="160" alt="极简防泄露版二维码" /> |
 
+### 镜像订阅（国内扫 Raw 二维码报 TLS 错误时用）
+
+> `raw.githubusercontent.com` 在国内直连时有时 TLS 握手会被干扰，Shadowrocket 扫码会报 TLS 错误。下面是同一份文件的 jsDelivr 镜像，内容与 Raw 一致，扫码或复制链接均可；镜像的日常更新可能比 Raw 慢一点。
+
+| 规则类型 | 镜像订阅地址 (jsDelivr) | 扫码导入 (二维码) |
+| :--- | :--- | :---: |
+| **整合强效版<br>(推荐)** | `https://cdn.jsdelivr.net/gh/shankangk/AntiLeak-AdBlock@main/output/sr_ad_antileak.conf` | <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Fshankangk%2FAntiLeak-AdBlock%40main%2Foutput%2Fsr_ad_antileak.conf" width="160" alt="整合强效版镜像二维码" /> |
+| **极简防泄露版** | `https://cdn.jsdelivr.net/gh/shankangk/AntiLeak-AdBlock@main/output/Mini-AntiLeak.conf` | <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Fshankangk%2FAntiLeak-AdBlock%40main%2Foutput%2FMini-AntiLeak.conf" width="160" alt="极简防泄露版镜像二维码" /> |
+
 ---
 
 ## 📲 在 Shadowrocket 中使用
@@ -42,7 +51,7 @@
 ### 方法一：扫描二维码导入（最便捷）
 1. 打开 **Shadowrocket** 客户端。
 2. 点击左上角的 **扫描图标**。
-3. 扫描上方表格中对应规则的二维码，点击 **保存** 即可完成导入。
+3. 扫描上方表格中对应规则的二维码，点击 **保存** 即可完成导入。若扫描 Raw 二维码报 TLS 错误，改扫上方镜像二维码。
 
 ### 方法二：复制 URL 手动导入
 1. 复制上方表格中的 **Raw 订阅地址**。
