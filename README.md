@@ -44,16 +44,27 @@
 | **整合强效版<br>(推荐)** | `https://cdn.jsdelivr.net/gh/shankangk/AntiLeak-AdBlock@main/output/sr_ad_antileak.conf` | <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Fshankangk%2FAntiLeak-AdBlock%40main%2Foutput%2Fsr_ad_antileak.conf" width="160" alt="整合强效版镜像二维码" /> |
 | **极简防泄露版** | `https://cdn.jsdelivr.net/gh/shankangk/AntiLeak-AdBlock@main/output/Mini-AntiLeak.conf` | <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Fshankangk%2FAntiLeak-AdBlock%40main%2Foutput%2FMini-AntiLeak.conf" width="160" alt="极简防泄露版镜像二维码" /> |
 
+### 一键导入 Shadowrocket（iOS）
+
+> 在 iPhone / iPad 上点下面的链接，会先打开跳转页，点「点击一键安装」并在弹出窗口点「允许」后唤醒 Shadowrocket 导入对应配置。GitHub 会过滤 `shadowrocket://` 这类自定义协议链接，所以这里经跳转页中转；镜像版国内更稳，Raw 版与上方二维码是同一地址。
+
+- **整合强效版**：[一键导入（镜像）](https://lowertop.github.io/Shadowrocket-First/redirect.html?url=https://cdn.jsdelivr.net/gh/shankangk/AntiLeak-AdBlock@main/output/sr_ad_antileak.conf) · [一键导入（Raw）](https://lowertop.github.io/Shadowrocket-First/redirect.html?url=https://raw.githubusercontent.com/shankangk/AntiLeak-AdBlock/main/output/sr_ad_antileak.conf)
+- **极简防泄露版**：[一键导入（镜像）](https://lowertop.github.io/Shadowrocket-First/redirect.html?url=https://cdn.jsdelivr.net/gh/shankangk/AntiLeak-AdBlock@main/output/Mini-AntiLeak.conf) · [一键导入（Raw）](https://lowertop.github.io/Shadowrocket-First/redirect.html?url=https://raw.githubusercontent.com/shankangk/AntiLeak-AdBlock/main/output/Mini-AntiLeak.conf)
+
 ---
 
 ## 📲 在 Shadowrocket 中使用
 
-### 方法一：扫描二维码导入（最便捷）
+### 方法一：一键导入（最便捷）
+1. 在 iPhone / iPad 上点上方「一键导入」链接，在跳转页点「点击一键安装」，弹出窗口点「允许」。
+2. Shadowrocket 被唤醒后完成导入，在配置列表里选中该配置并选择 **使用配置**。
+
+### 方法二：扫描二维码导入
 1. 打开 **Shadowrocket** 客户端。
 2. 点击左上角的 **扫描图标**。
 3. 扫描上方表格中对应规则的二维码，点击 **保存** 即可完成导入。若扫描 Raw 二维码报 TLS 错误，改扫上方镜像二维码。
 
-### 方法二：复制 URL 手动导入
+### 方法三：复制 URL 手动导入
 1. 复制上方表格中的 **Raw 订阅地址**。
 2. 打开 **Shadowrocket**，进入底部的 **配置** (Config) 页面。
 3. 点击右上角的 **➕** 号，将链接粘贴至 **URL** 处，点击 **下载**。
