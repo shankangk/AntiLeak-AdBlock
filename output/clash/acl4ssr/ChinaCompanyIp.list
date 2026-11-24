@@ -1,4 +1,4 @@
-# ACL4SSR ChinaCompanyIp (由 scripts/build.py 自托管, 来源 ACL4SSR/ACL4SSR master/Clash/ChinaCompanyIp.list, 构建时间 2026-11-24 10:12:53 UTC+8)
+# ACL4SSR ChinaCompanyIp (由 scripts/build.py 自托管, 来源 ACL4SSR/ACL4SSR master/Clash/ChinaCompanyIp.list, 构建时间 2026-11-24 18:53:21 UTC+8)
 # 中国云服务商ip端
 # 阿里
 IP-CIDR,8.128.0.0/10,no-resolve

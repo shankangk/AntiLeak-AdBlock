@@ -1,6 +1,6 @@
 # Johnshall 去广告规则 (Clash domain 格式, 由 scripts/build.py 自动拆分)
 # 来源: Johnshall/Shadowrocket-ADBlock-Rules-Forever (sr_ad_only.conf)
-# 构建时间: 2026-11-24 10:12:53 (UTC+8), 共 52758 条
+# 构建时间: 2026-11-24 18:53:21 (UTC+8), 共 52758 条
 # 用法: rule-provider behavior:domain, format:yaml; RULE-SET,JohnshallDomain,REJECT
 payload:
   - '+.ad.12306.cn'

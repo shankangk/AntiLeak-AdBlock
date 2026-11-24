@@ -1,6 +1,6 @@
 # Johnshall 去广告规则 (Clash classical 格式, 由 scripts/build.py 自动转换)
 # 来源: Johnshall/Shadowrocket-ADBlock-Rules-Forever (sr_ad_only.conf)
-# 构建时间: 2026-11-24 10:12:53 (UTC+8), 共 52886 条
+# 构建时间: 2026-11-24 18:53:21 (UTC+8), 共 52886 条
 # 注意: 本文件已废弃 (DEPRECATED), 仅作过渡期兼容, 模板与覆写已改用
 # ad_johnshall_domain.yaml (behavior:domain) + ad_johnshall_ipcidr.list
 # (behavior:ipcidr)。新配置请勿再引用 JohnshallAD。
