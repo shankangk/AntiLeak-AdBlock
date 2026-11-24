@@ -31,6 +31,8 @@
 
 > 直接复制下面的 Raw 订阅地址导入即可；也可以扫下面的二维码导入。二维码由本仓库在本地离线生成（SVG 文件在 `docs/qr/`），不经过任何第三方二维码服务，订阅地址不会发给第三方。
 
+> 一键导入已去除（2026-11-24）：自定义域名 `shankssoda.me` 的 Pages 站点打不开（ERR_EMPTY_RESPONSE），跳转页无法加载；请直接复制下面的订阅地址手动导入。
+
 | 规则类型 | 说明 | 订阅地址 (Raw) |
 | :--- | :--- | :---: |
 | **整合强效版<br>(推荐)** | 防 DNS 泄露 + Johnshall 每日同步去广告 | `https://raw.githubusercontent.com/shankangk/AntiLeak-AdBlock/main/output/sr_ad_antileak.conf` |
@@ -57,15 +59,6 @@
 | **整合强效版<br>(推荐)** | `https://cdn.jsdelivr.net/gh/shankangk/AntiLeak-AdBlock@main/output/sr_ad_antileak.conf` |
 | **极简防泄露版** | `https://cdn.jsdelivr.net/gh/shankangk/AntiLeak-AdBlock@main/output/Mini-AntiLeak.conf` |
 
-### 一键导入 Shadowrocket（iOS）
-
-> 在 iPhone / iPad 上点下面的链接，会先打开跳转页，点「点击一键安装」并在弹出窗口点「允许」后唤醒 Shadowrocket 导入对应配置。GitHub 会过滤 `shadowrocket://` 这类自定义协议链接，所以这里经跳转页中转；镜像版国内更稳，Raw 版与上方二维码是同一地址。
-
-- **整合强效版**：[一键导入（镜像）](https://shankangk.github.io/AntiLeak-AdBlock/redirect.html?url=https://cdn.jsdelivr.net/gh/shankangk/AntiLeak-AdBlock@main/output/sr_ad_antileak.conf) · [一键导入（Raw）](https://shankangk.github.io/AntiLeak-AdBlock/redirect.html?url=https://raw.githubusercontent.com/shankangk/AntiLeak-AdBlock/main/output/sr_ad_antileak.conf)
-- **极简防泄露版**：[一键导入（镜像）](https://shankangk.github.io/AntiLeak-AdBlock/redirect.html?url=https://cdn.jsdelivr.net/gh/shankangk/AntiLeak-AdBlock@main/output/Mini-AntiLeak.conf) · [一键导入（Raw）](https://shankangk.github.io/AntiLeak-AdBlock/redirect.html?url=https://raw.githubusercontent.com/shankangk/AntiLeak-AdBlock/main/output/Mini-AntiLeak.conf)
-
-> 一键导入走本仓库自托管的跳转页（`docs/redirect.html`），不再经过第三方 `lowertop.github.io`。跳转页只显示目标地址、点按钮才唤醒 Shadowrocket，不自动跳转、不收集信息、不加载第三方脚本。**需要先在仓库 Settings → Pages → Deploy from branch（选 main 分支、`/docs` 目录）开启 GitHub Pages，否则上面的一键导入链接打不开**；不开 Pages 也不影响复制链接手动导入。
-
 ---
 
 ## 🔒 DNS 是怎么分的（国内直连不绕代理）
@@ -86,11 +79,7 @@
 
 ## 📲 在 Shadowrocket 中使用
 
-### 方法一：一键导入（最便捷）
-1. 在 iPhone / iPad 上点上方「一键导入」链接，在跳转页点「点击一键安装」，弹出窗口点「允许」。
-2. Shadowrocket 被唤醒后完成导入，在配置列表里选中该配置并选择 **使用配置**。
-
-### 方法二：复制 URL 手动导入
+### 方法一：复制 URL 手动导入
 1. 复制上方表格中的 **Raw 订阅地址**。
 2. 打开 **Shadowrocket**，进入底部的 **配置** (Config) 页面。
 3. 点击右上角的 **➕** 号，将链接粘贴至 **URL** 处，点击 **下载**。
