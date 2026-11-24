@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>在 Shadowrocket 中打开 - AntiLeak-AdBlock</title>
+<style>
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; max-width: 560px; margin: 48px auto; padding: 0 20px; line-height: 1.7; color: #222; }
+  code { word-break: break-all; background: #f2f2f2; padding: 2px 6px; border-radius: 4px; }
+  a.btn { display: inline-block; margin-top: 16px; padding: 12px 24px; background: #007aff; color: #fff; text-decoration: none; border-radius: 10px; font-size: 17px; }
+  p.note { color: #666; font-size: 14px; }
+</style>
+</head>
+<body>
+<h1>在 Shadowrocket 中打开</h1>
+<p>将要导入的配置地址是：</p>
+<p><code id="target">（未提供地址）</code></p>
+<p><a class="btn" id="openBtn" href="#">点击一键安装</a></p>
+<p class="note">点上面按钮后，系统会弹出窗口，点「允许」即可唤醒 Shadowrocket 导入。本页面不会自动跳转，不收集任何信息，不加载任何第三方脚本；地址不对请直接关掉本页，复制链接到 Shadowrocket 里手动导入。</p>
+<script>
+  // 只读 ?url= 参数, 不自动跳转, 不上报, 不加载第三方脚本。
+  var params = new URLSearchParams(location.search);
+  var url = params.get("url") || "";
+  var allowed = url.indexOf("https://raw.githubusercontent.com/shankangk/AntiLeak-AdBlock/") === 0
+    || url.indexOf("https://cdn.jsdelivr.net/gh/shankangk/AntiLeak-AdBlock@") === 0;
+  var targetEl = document.getElementById("target");
+  var btn = document.getElementById("openBtn");
+  if (allowed) {
+    targetEl.textContent = url;
+    btn.href = "shadowrocket://add/" + encodeURIComponent(url);
+  } else {
+    targetEl.textContent = url ? "地址不在本仓库白名单内，已拒绝生成跳转链接，请核对地址。" : "（未提供地址）";
+    btn.style.display = "none";
+  }
+</script>
+</body>
+</html>
