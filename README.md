@@ -40,15 +40,15 @@
 
 ### 订阅二维码（扫码导入）
 
-> 用 Shadowrocket / FlClash / Clash Verge Rev 自带的「扫码」功能扫下面对应的码，即可导入订阅。每个码的内容就是上面表格里对应的 Raw 订阅地址，一字不差；二维码为本地离线生成，未经过第三方服务。
+> 用 Shadowrocket / FlClash / Clash Verge Rev 自带的「扫码」功能扫下面对应的码，即可导入订阅。每个码的内容是上面表格里对应文件的 jsDelivr 镜像地址（与 Raw 同一份文件，内容一致，2026-11-24 已核对 sha256 相同）；小火箭扫码后直接下载镜像地址，国内更稳，不会因 Raw 直连 TLS 被干扰而报 URL 错误。二维码为本地离线生成，未经过第三方服务。
 
 | 订阅 | 二维码 | 说明 |
 | :--- | :---: | :--- |
-| **小火箭整合强效版** | <img src="docs/qr/qr-shadowrocket-full.svg" width="200" alt="小火箭整合强效版订阅二维码"> | Shadowrocket 导入 `sr_ad_antileak.conf`，防 DNS 泄露 + 去广告（推荐） |
-| **小火箭极简防泄露版** | <img src="docs/qr/qr-shadowrocket-mini.svg" width="200" alt="小火箭极简防泄露版订阅二维码"> | Shadowrocket 导入 `Mini-AntiLeak.conf`，纯防泄露与基础分流 |
-| **Clash Meta 完整版** | <img src="docs/qr/qr-clash-meta.svg" width="200" alt="Clash Meta 完整版订阅二维码"> | FlClash / Clash Verge Rev 导入 `Meta-AntiLeak.yaml`（模板模式，推荐） |
-| **Clash 覆写 JS 版** | <img src="docs/qr/qr-clash-override-js.svg" width="200" alt="Clash 覆写 JS 版订阅二维码"> | FlClash 脚本覆写 / Clash Verge Rev Script 覆写，`AntiLeak-Override.js` |
-| **Clash 覆写 Merge 版** | <img src="docs/qr/qr-clash-override-merge.svg" width="200" alt="Clash 覆写 Merge 版订阅二维码"> | Clash Verge Rev Merge 覆写，`AntiLeak-Merge.yaml` |
+| **小火箭整合强效版** | <img src="docs/qr/qr-shadowrocket-full.svg" width="294" alt="小火箭整合强效版订阅二维码"> | Shadowrocket 导入 `sr_ad_antileak.conf`，防 DNS 泄露 + 去广告（推荐） |
+| **小火箭极简防泄露版** | <img src="docs/qr/qr-shadowrocket-mini.svg" width="294" alt="小火箭极简防泄露版订阅二维码"> | Shadowrocket 导入 `Mini-AntiLeak.conf`，纯防泄露与基础分流 |
+| **Clash Meta 完整版** | <img src="docs/qr/qr-clash-meta.svg" width="294" alt="Clash Meta 完整版订阅二维码"> | FlClash / Clash Verge Rev 导入 `Meta-AntiLeak.yaml`（模板模式，推荐） |
+| **Clash 覆写 JS 版** | <img src="docs/qr/qr-clash-override-js.svg" width="294" alt="Clash 覆写 JS 版订阅二维码"> | FlClash 脚本覆写 / Clash Verge Rev Script 覆写，`AntiLeak-Override.js` |
+| **Clash 覆写 Merge 版** | <img src="docs/qr/qr-clash-override-merge.svg" width="294" alt="Clash 覆写 Merge 版订阅二维码"> | Clash Verge Rev Merge 覆写，`AntiLeak-Merge.yaml` |
 
 ### 镜像订阅（国内 Raw 地址报 TLS 错误时用）
 
