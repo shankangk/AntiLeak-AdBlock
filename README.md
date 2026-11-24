@@ -29,12 +29,24 @@
 
 ## 📥 规则订阅地址
 
-> 直接复制下面的 Raw 订阅地址导入即可。本仓库已去掉第三方二维码服务（原先的二维码由 `api.qrserver.com` 生成，订阅地址会经过第三方服务器），如需扫码请在 Shadowrocket 里用「扫描」功能直接扫订阅链接，或复制链接手动导入。
+> 直接复制下面的 Raw 订阅地址导入即可；也可以扫下面的二维码导入。二维码由本仓库在本地离线生成（SVG 文件在 `docs/qr/`），不经过任何第三方二维码服务，订阅地址不会发给第三方。
 
 | 规则类型 | 说明 | 订阅地址 (Raw) |
 | :--- | :--- | :---: |
 | **整合强效版<br>(推荐)** | 防 DNS 泄露 + Johnshall 每日同步去广告 | `https://raw.githubusercontent.com/shankangk/AntiLeak-AdBlock/main/output/sr_ad_antileak.conf` |
 | **极简防泄露版** | 纯粹防 DNS 泄露与基础分流，不含庞大广告规则 | `https://raw.githubusercontent.com/shankangk/AntiLeak-AdBlock/main/output/Mini-AntiLeak.conf` |
+
+### 订阅二维码（扫码导入）
+
+> 用 Shadowrocket / FlClash / Clash Verge Rev 自带的「扫码」功能扫下面对应的码，即可导入订阅。每个码的内容就是上面表格里对应的 Raw 订阅地址，一字不差；二维码为本地离线生成，未经过第三方服务。
+
+| 订阅 | 二维码 | 说明 |
+| :--- | :---: | :--- |
+| **小火箭整合强效版** | <img src="docs/qr/qr-shadowrocket-full.svg" width="200" alt="小火箭整合强效版订阅二维码"> | Shadowrocket 导入 `sr_ad_antileak.conf`，防 DNS 泄露 + 去广告（推荐） |
+| **小火箭极简防泄露版** | <img src="docs/qr/qr-shadowrocket-mini.svg" width="200" alt="小火箭极简防泄露版订阅二维码"> | Shadowrocket 导入 `Mini-AntiLeak.conf`，纯防泄露与基础分流 |
+| **Clash Meta 完整版** | <img src="docs/qr/qr-clash-meta.svg" width="200" alt="Clash Meta 完整版订阅二维码"> | FlClash / Clash Verge Rev 导入 `Meta-AntiLeak.yaml`（模板模式，推荐） |
+| **Clash 覆写 JS 版** | <img src="docs/qr/qr-clash-override-js.svg" width="200" alt="Clash 覆写 JS 版订阅二维码"> | FlClash 脚本覆写 / Clash Verge Rev Script 覆写，`AntiLeak-Override.js` |
+| **Clash 覆写 Merge 版** | <img src="docs/qr/qr-clash-override-merge.svg" width="200" alt="Clash 覆写 Merge 版订阅二维码"> | Clash Verge Rev Merge 覆写，`AntiLeak-Merge.yaml` |
 
 ### 镜像订阅（国内 Raw 地址报 TLS 错误时用）
 
