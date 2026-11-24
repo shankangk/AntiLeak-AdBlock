@@ -7,16 +7,34 @@
 #     应用连接时把原始域名交给代理节点远端解析, 本地运营商零记录
 #     (对应 Shadowrocket: FINAL,PROXY 远端解析)
 #  3. respect-rules: true: DNS 查询本身也按分流规则走 —— 国内域名用
-#     国内加密 DoH 直连解析, 国外域名用国外 DoH 并经代理发出
+#     国内加密 DoH 直连解析, 国外域名用国外 DoH 并经代理发出。
+#     国内直连路径没有因为防泄露而变慢: 国内域名 (geosite:cn,private
+#     与 ChinaDomain / Apple 等规则命中的域名) 仍走国内 DoH 直连,
+#     不经过代理、不走国外 DoH; 只有国外域名才走代理 DoH / 远端解析。
+#     国外 DoH 与阿里 DoH 用 IP 字面量 (https://<IP>/dns-query), 腾讯
+#     DoH 用 doh.pub 主机名 (119.29.29.29 裸 IP 不提供 DoH, 实测
+#     服务端直接断开连接); 该主机名只由加密 DoT 解析, 因此不需要
+#     先用明文 DNS 解析 DoH 主机名, bootstrap 泄露口被堵死, 国内
+#     解析也少了一次主机名查询 (阿里那路)。
 #     (对应 Shadowrocket: dns-direct-system = false +
 #      dns-direct-fallback-proxy = true, 直连绝不走系统明文 DNS)
 #  4. 所有 IP-CIDR / GEOIP 国内规则强制 no-resolve, 防止为匹配 IP
 #     规则而对域名做预解析 (与 iOS 版同名机制)
-#  5. TUN strict-route + dns-hijack 接管全部 53 端口查询, STUN 拦截
-#     封堵 WebRTC 泄露 (对应 Shadowrocket 的「禁用 STUN」开关)
+#  5. TUN strict-route + dns-hijack 接管全部 53 端口查询与 DoT 853
+#     端口, STUN 拦截封堵 WebRTC 泄露, UDP 443/8443 (QUIC) 拦截
+#     强制走 TCP/TLS (对应 Shadowrocket 的「禁用 STUN」开关;
+#     见 rules 第 0 节注释: 在 UDP 被限流的网络下强制 TCP/TLS
+#     同时利于防泄露 (SNI 可嗅探) 与网速, 代价是 HTTP/3 不可用,
+#     见 README「网络不通畅怎么办」)
 #  6. 广告拦截与 iOS 版同源: Johnshall 每日规则 (由 scripts/build.py
-#     自动转换成 Clash 格式) + ACL4SSR BanAD/BanProgramAD +
-#     GEOSITE category-ads-all 三层 REJECT
+#     自动拆成 domain + ipcidr 两类, 见 rule-providers) +
+#     ACL4SSR BanAD/BanProgramAD + GEOSITE category-ads-all 三层 REJECT。
+#     Johnshall 的 52,527 条域名规则用 behavior:domain (yaml payload),
+#     128 条 IP 规则用 behavior:ipcidr (纯 CIDR 文本), 不再用
+#     52,655 条 classical 文本逐条匹配。
+#  7. 规则集拉取: 全部 rule-provider 均指定 proxy: PROXY, 且
+#     ACL4SSR 10 个列表由 build.py 自托管到 output/clash/acl4ssr/,
+#     不再让客户端在裸连状态下直连 raw.githubusercontent.com 拉规则。
 #
 # 【使用前必改一处】把下方 proxy-providers 中 MySubscribe 的 url
 # 换成你自己的订阅链接 (机场订阅链接可直接填, 只取其中节点部分),
@@ -65,6 +83,7 @@ tun:
   dns-hijack:
     - any:53
     - tcp://any:53
+    - tcp://any:853
   auto-route: true
   auto-detect-interface: true
   strict-route: true
@@ -124,26 +143,36 @@ dns:
     - www.msftconnecttest.com
     - www.msftncsi.com
     - dns.msftncsi.com
-  # 仅用于解析下面 DoH 服务器自身的域名 (bootstrap), 不处理普通查询
+  # bootstrap 专用, 只做 DoT 加密解析, 不处理普通查询。
+  # 注意: default-nameserver 必须是 IP (Mihomo 要求), 这里用 DoT
+  # (tls://) 而不用明文 IP。阿里与国外 DoH 用 IP 字面量, 腾讯
+  # doh.pub 主机名由这里的 DoT 解析, 绝不走明文 DNS, bootstrap 只是兜底。
   default-nameserver:
-    - 223.5.5.5
-    - 119.29.29.29
-  # 仅用于解析代理节点服务器域名
+    - tls://223.5.5.5
+    - tls://119.29.29.29
+  # 仅用于解析代理节点服务器域名 (阿里 IP 字面量 + 腾讯 doh.pub, 直连)
   proxy-server-nameserver:
-    - https://dns.alidns.com/dns-query
+    - https://223.5.5.5/dns-query
     - https://doh.pub/dns-query
-  # 默认解析: 国外加密 DoH, 且经 PROXY 策略组发出, 运营商看不到查询
+  # 默认解析: 国外加密 DoH (IP 字面量), 且经 PROXY 策略组发出,
+  # 运营商看不到查询。1.1.1.1 = Cloudflare, 8.8.8.8 = Google。
   nameserver:
-    - https://cloudflare-dns.com/dns-query#PROXY
-    - https://dns.google/dns-query#PROXY
-  # 直连解析: 国内加密 DoH (仅解析命中直连规则的国内域名)
+    - https://1.1.1.1/dns-query#PROXY
+    - https://8.8.8.8/dns-query#PROXY
+  # 直连解析: 国内加密 DoH (直连, 不走代理)。
+  # 223.5.5.5 = 阿里 AliDNS (IP 字面量 DoH, 实测可用); 第二路用
+  # doh.pub 主机名 (腾讯 DoH): 119.29.29.29 裸 IP 不提供 DoH
+  # (2026-11-24 实测: 服务端直接断开连接), 故不用 IP 字面量;
+  # 该主机名只由 default-nameserver 的加密 DoT 解析, 绝不走明文 DNS。
+  # 国内域名走这里, 延迟与改前 (主机名 DoH) 相同量级, 且少了
+  # 一次 bootstrap 主机名查询, 实测见 README / 提交说明。
   direct-nameserver:
-    - https://dns.alidns.com/dns-query
+    - https://223.5.5.5/dns-query
     - https://doh.pub/dns-query
   direct-nameserver-follow-policy: true
   nameserver-policy:
     "geosite:cn,private":
-      - https://dns.alidns.com/dns-query
+      - https://223.5.5.5/dns-query
       - https://doh.pub/dns-query
 
 hosts:
@@ -163,26 +192,38 @@ proxy-providers:
     health-check:
       enable: true
       url: https://www.gstatic.com/generate_204
-      interval: 300
+      interval: 180
       lazy: true
 
 proxy-groups:
   # 主策略组, 名称与 iOS 版 FINAL,PROXY 对应 (DNS 的 #PROXY 也指向它)
+  # 默认先走 AUTO (url-test 自动选延迟最低), AUTO 全挂时走
+  # AUTO-FALLBACK (fallback 按顺序选第一个可用), 再走 DIRECT。
+  # interval 从 300 改为 180 秒: 死节点更快被发现, 测速开销仍可接受
+  # (每次只测 generate_204, 且 AUTO 的 lazy:false 只在切换时测)。
   - name: PROXY
     type: select
     use:
       - MySubscribe
     proxies:
       - AUTO
+      - AUTO-FALLBACK
       - DIRECT
   - name: AUTO
     type: url-test
     use:
       - MySubscribe
     url: https://www.gstatic.com/generate_204
-    interval: 300
+    interval: 180
     tolerance: 50
-    lazy: true
+    lazy: false
+  - name: AUTO-FALLBACK
+    type: fallback
+    use:
+      - MySubscribe
+    url: https://www.gstatic.com/generate_204
+    interval: 180
+    tolerance: 50
 
 # GEO 数据自动更新 (GEOSITE / GEOIP 规则依赖)
 geodata-mode: true
@@ -200,63 +241,103 @@ rule-anchor:
     interval: 86400
     behavior: classical
     format: text
+    proxy: PROXY
+  domain: &domain
+    type: http
+    interval: 86400
+    behavior: domain
+    format: yaml
+    proxy: PROXY
+  ipcidr: &ipcidr
+    type: http
+    interval: 86400
+    behavior: ipcidr
+    format: text
+    proxy: PROXY
 
 rule-providers:
-  # Johnshall 广告规则的 Clash 转换版, 与 iOS 版同源同日自动构建
-  JohnshallAD:
-    <<: *classical
-    url: "https://raw.githubusercontent.com/shankangk/AntiLeak-AdBlock/main/output/clash/ad_johnshall_clash.list"
-    path: ./ruleset/ad_johnshall_clash.list
+  # Johnshall 广告规则的 Clash 拆分版, 与 iOS 版同源同日自动构建。
+  # domain 版是 yaml payload (+.domain 形式, 52,527 条),
+  # ipcidr 版是纯 CIDR 文本 (128 条)。
+  # 旧的 ad_johnshall_clash.list (classical, 52,655 条) 仍由
+  # build.py 生成一版, 仅作过渡期兼容, 本模板不再引用它。
+  JohnshallDomain:
+    <<: *domain
+    url: "https://raw.githubusercontent.com/shankangk/AntiLeak-AdBlock/main/output/clash/ad_johnshall_domain.yaml"
+    path: ./ruleset/ad_johnshall_domain.yaml
+  JohnshallIP:
+    <<: *ipcidr
+    url: "https://raw.githubusercontent.com/shankangk/AntiLeak-AdBlock/main/output/clash/ad_johnshall_ipcidr.list"
+    path: ./ruleset/ad_johnshall_ipcidr.list
   # 以下与 iOS 版 Mini-AntiLeak.conf 引用的 ACL4SSR 规则集完全一致
   BanAD:
     <<: *classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanAD.list"
+    url: "https://raw.githubusercontent.com/shankangk/AntiLeak-AdBlock/main/output/clash/acl4ssr/BanAD.list"
     path: ./ruleset/BanAD.list
   BanProgramAD:
     <<: *classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanProgramAD.list"
+    url: "https://raw.githubusercontent.com/shankangk/AntiLeak-AdBlock/main/output/clash/acl4ssr/BanProgramAD.list"
     path: ./ruleset/BanProgramAD.list
   LocalAreaNetwork:
     <<: *classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/LocalAreaNetwork.list"
+    url: "https://raw.githubusercontent.com/shankangk/AntiLeak-AdBlock/main/output/clash/acl4ssr/LocalAreaNetwork.list"
     path: ./ruleset/LocalAreaNetwork.list
   UnBan:
     <<: *classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/UnBan.list"
+    url: "https://raw.githubusercontent.com/shankangk/AntiLeak-AdBlock/main/output/clash/acl4ssr/UnBan.list"
     path: ./ruleset/UnBan.list
   GoogleCN:
     <<: *classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/GoogleCN.list"
+    url: "https://raw.githubusercontent.com/shankangk/AntiLeak-AdBlock/main/output/clash/acl4ssr/GoogleCN.list"
     path: ./ruleset/GoogleCN.list
   ChinaDomain:
     <<: *classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaDomain.list"
+    url: "https://raw.githubusercontent.com/shankangk/AntiLeak-AdBlock/main/output/clash/acl4ssr/ChinaDomain.list"
     path: ./ruleset/ChinaDomain.list
   ChinaMedia:
     <<: *classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaMedia.list"
+    url: "https://raw.githubusercontent.com/shankangk/AntiLeak-AdBlock/main/output/clash/acl4ssr/ChinaMedia.list"
     path: ./ruleset/ChinaMedia.list
   Apple:
     <<: *classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Apple.list"
+    url: "https://raw.githubusercontent.com/shankangk/AntiLeak-AdBlock/main/output/clash/acl4ssr/Apple.list"
     path: ./ruleset/Apple.list
   ChinaCompanyIp:
     <<: *classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaCompanyIp.list"
+    url: "https://raw.githubusercontent.com/shankangk/AntiLeak-AdBlock/main/output/clash/acl4ssr/ChinaCompanyIp.list"
     path: ./ruleset/ChinaCompanyIp.list
   ChinaIp:
     <<: *classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaIp.list"
+    url: "https://raw.githubusercontent.com/shankangk/AntiLeak-AdBlock/main/output/clash/acl4ssr/ChinaIp.list"
     path: ./ruleset/ChinaIp.list
 
 rules:
-  # ---- 0. WebRTC 防泄露: 拦截 STUN 探测 (对应 iOS 版禁用 STUN) ----
-  - AND,((NETWORK,udp),(DST-PORT,3478)),REJECT
-  - AND,((NETWORK,udp),(DST-PORT,19302)),REJECT
+  # ---- 0. QUIC 拦截: UDP 443/8443 一律 REJECT, 强制走 TCP/TLS ----
+  # 原因: QUIC (HTTP/3) 走 UDP, 会绕过 TLS SNI 嗅探与代理分流,
+  # 且在 UDP 被限流的网络下常超时, 强制 TCP 后 SNI 可被嗅探还原、
+  # 分流更准, 网速反而更稳。代价: HTTP/3 不可用, 部分 Google
+  # 服务可能变慢, 见 README「网络不通畅怎么办」。
+  - AND,((NETWORK,udp),(DST-PORT,443)),REJECT
+  - AND,((NETWORK,udp),(DST-PORT,8443)),REJECT
+
+  # ---- 0b. WebRTC 防泄露: 拦截 STUN/TURN 探测 (对应 iOS 版禁用 STUN) ----
+  # 端口段经 Mihomo v1.19.33 实测接受 (3478-3481 / 19302-19309)。
+  # 注意: Mihomo 没有合法的 DOMAIN-SUFFIX,stun.* 通配写法,
+  # STUN 靠端口拦截覆盖全部 STUN 服务器 (与主机名无关),
+  # 域名规则只保留已知的一个 Google STUN 主机。
+  - AND,((NETWORK,udp),(DST-PORT,3478-3481)),REJECT
+  - AND,((NETWORK,udp),(DST-PORT,5349)),REJECT
+  - AND,((NETWORK,udp),(DST-PORT,5350)),REJECT
+  - AND,((NETWORK,udp),(DST-PORT,19302-19309)),REJECT
   - DOMAIN-SUFFIX,stun.l.google.com,REJECT
 
   # ---- 1. 广告与追踪拦截 (与 iOS 版同源) ----
-  - RULE-SET,JohnshallAD,REJECT
+  # 顺序注意: 广告规则必须在国内 DIRECT 规则之前。既在广告名单
+  # 又在 ChinaDomain 等国内名单里的域名, 结果必须是 REJECT,
+  # 绝不能把 ChinaDomain/DIRECT 挪到广告前面。
+  # IP 规则只有 128 条, 放域名规则前面, 匹配更快。
+  - RULE-SET,JohnshallIP,REJECT
+  - RULE-SET,JohnshallDomain,REJECT
   - RULE-SET,BanAD,REJECT
   - RULE-SET,BanProgramAD,REJECT
   - GEOSITE,category-ads-all,REJECT

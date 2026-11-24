@@ -2,13 +2,25 @@
 # AntiLeak 覆写 (Clash Verge Rev / Mihomo Party 的 Merge 覆写专用)
 # 作用: 保留机场订阅配置原样, 只叠加与模板版相同的防 DNS 泄露
 # 体系 + 广告拦截: fake-ip + respect-rules DNS、关 IPv6、TUN
-# strict-route + dns-hijack、STUN 拦截、GEOSITE 去广告前置。
+# strict-route + dns-hijack (53 + 853 DoT)、STUN 拦截、QUIC 拦截、
+# GEOSITE 去广告前置。
+# 国内 / 国外分流不变: 国内域名走国内 DoH 直连 (阿里 IP 字面量 +
+# 腾讯 doh.pub 主机名, 无 #AntiLeak), 国外域名走国外 DoH 经 AntiLeak 组发出。
 # 机场原有的分流规则与策略组全部保留; 新增策略组 AntiLeak
 # (include-all 自动包含机场全部节点) 仅供加密 DNS 指定出口。
+# 注意: Merge 版不新增 fallback 策略组, 原因与 JS 版相同
+# (机场自带策略组全部保留, 再叠加 fallback 组会打架; 自动容灾
+# 只在模板版 Meta-AntiLeak.yaml 的 AUTO-FALLBACK 组里做)。
+# Merge 版放不下的东西: Johnshall 拆分规则集 (写 rule-providers
+# 会整段替换机场自带的, 无法安全叠加), 所以这里只用内核内置的
+# GEOSITE 广告分类; 想要 Johnshall 全量规则请改用同目录的
+# JS 脚本覆写 (AntiLeak-Override.js, Clash Verge 的 Script 模式
+# 同样可用)。
 #
 # 用法 (Clash Verge Rev): 配置页新建一个「Merge」类型的覆写配置,
 # 把本文件内容粘贴进去, 再在你的机场订阅配置上启用这个覆写
 # (右键订阅 -> 启用覆写 / 在订阅的编辑里绑定), 重连生效。
+# 校验: Mihomo v1.19.33, 模拟机场配置 + 本文件合并后 mihomo -t 通过。
 # =================================================================
 
 ipv6: false
@@ -40,6 +52,7 @@ tun:
   dns-hijack:
     - any:53
     - tcp://any:53
+    - tcp://any:853
   auto-route: true
   auto-detect-interface: true
   strict-route: true
@@ -96,22 +109,29 @@ dns:
     - www.msftconnecttest.com
     - www.msftncsi.com
     - dns.msftncsi.com
+  # bootstrap 专用, 只做 DoT 加密解析, 不处理普通查询
   default-nameserver:
-    - 223.5.5.5
-    - 119.29.29.29
+    - tls://223.5.5.5
+    - tls://119.29.29.29
+  # 仅用于解析代理节点服务器域名 (阿里 IP 字面量 + 腾讯 doh.pub, 直连)
   proxy-server-nameserver:
-    - https://dns.alidns.com/dns-query
+    - https://223.5.5.5/dns-query
     - https://doh.pub/dns-query
+  # 默认解析: 国外加密 DoH (IP 字面量) 经 AntiLeak 组发出
+  # 1.1.1.1 = Cloudflare, 8.8.8.8 = Google
   nameserver:
-    - https://cloudflare-dns.com/dns-query#AntiLeak
-    - https://dns.google/dns-query#AntiLeak
+    - https://1.1.1.1/dns-query#AntiLeak
+    - https://8.8.8.8/dns-query#AntiLeak
+  # 直连解析: 国内加密 DoH (直连, 不走代理)
+  # 223.5.5.5 = 阿里 AliDNS (IP 字面量 DoH, 实测可用); 第二路用
+  # doh.pub 主机名 (腾讯 DoH, 119.29.29.29 裸 IP 不提供 DoH, 实测断开)
   direct-nameserver:
-    - https://dns.alidns.com/dns-query
+    - https://223.5.5.5/dns-query
     - https://doh.pub/dns-query
   direct-nameserver-follow-policy: true
   nameserver-policy:
     "geosite:cn,private":
-      - https://dns.alidns.com/dns-query
+      - https://223.5.5.5/dns-query
       - https://doh.pub/dns-query
 
 prepend-proxy-groups:
@@ -121,12 +141,21 @@ prepend-proxy-groups:
     include-all: true
 
 prepend-rules:
-  # WebRTC 防泄露: STUN 拦截
-  - AND,((NETWORK,udp),(DST-PORT,3478)),REJECT
-  - AND,((NETWORK,udp),(DST-PORT,19302)),REJECT
+  # QUIC 拦截 (最前): UDP 443/8443 一律 REJECT 强制 TCP/TLS,
+  # 原因见模板版 rules 第 0 节 (UDP 限流环境下更稳, SNI 可嗅探;
+  # 代价是 HTTP/3 不可用)。
+  - AND,((NETWORK,udp),(DST-PORT,443)),REJECT
+  - AND,((NETWORK,udp),(DST-PORT,8443)),REJECT
+  # WebRTC 防泄露: STUN/TURN 端口段拦截 (端口段经 Mihomo v1.19.33 实测接受)
+  # Mihomo 没有合法的 DOMAIN-SUFFIX,stun.* 通配写法, STUN 靠端口
+  # 拦截覆盖全部 STUN 服务器, 域名规则只保留已知的一个 Google STUN 主机。
+  - AND,((NETWORK,udp),(DST-PORT,3478-3481)),REJECT
+  - AND,((NETWORK,udp),(DST-PORT,5349)),REJECT
+  - AND,((NETWORK,udp),(DST-PORT,5350)),REJECT
+  - AND,((NETWORK,udp),(DST-PORT,19302-19309)),REJECT
   - DOMAIN-SUFFIX,stun.l.google.com,REJECT
   # 广告拦截: Merge 模式无法安全叠加远程规则集 (写 rule-providers
   # 会整段替换机场自带的), 这里只用内核内置的 GEOSITE 广告分类。
-  # 想要 Johnshall 6 万条全量规则, 请改用同目录的 JS 脚本覆写
+  # 想要 Johnshall 全量规则, 请改用同目录的 JS 脚本覆写
   # (AntiLeak-Override.js, Clash Verge 的 Script 模式同样可用)。
   - GEOSITE,category-ads-all,REJECT
