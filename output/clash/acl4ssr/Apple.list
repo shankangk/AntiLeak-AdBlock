@@ -1,4 +1,4 @@
-# ACL4SSR Apple (由 scripts/build.py 自托管, 来源 ACL4SSR/ACL4SSR master/Clash/Apple.list, 构建时间 2026-11-24 18:53:21 UTC+8)
+# ACL4SSR Apple (由 scripts/build.py 自托管, 来源 ACL4SSR/ACL4SSR master/Clash/Apple.list, 构建时间 2026-11-25 17:48:00 UTC+8)
 # Apple
 # 一般国内Apple肯定正常,不需要开代理
 DOMAIN,apple.comscoreresearch.com
