@@ -1,6 +1,6 @@
 # Johnshall 去广告规则 (Clash ipcidr 格式, 由 scripts/build.py 自动拆分)
 # 来源: Johnshall/Shadowrocket-ADBlock-Rules-Forever (sr_ad_only.conf)
-# 构建时间: 2026-11-25 17:48:00 (UTC+8), 共 128 条
+# 构建时间: 2026-11-26 17:29:12 (UTC+8), 共 128 条
 # 注意: 本文件是纯 CIDR 文本, 不带 IP-CIDR, 前缀与 no-resolve 后缀
 # (behavior:ipcidr + format:text 要求纯 CIDR, 带前缀会被 Mihomo 报 invalid Ipcidr)
 # 用法: rule-provider behavior:ipcidr, format:text; RULE-SET,JohnshallIP,REJECT

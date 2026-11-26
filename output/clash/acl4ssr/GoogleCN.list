@@ -1,4 +1,4 @@
-# ACL4SSR GoogleCN (由 scripts/build.py 自托管, 来源 ACL4SSR/ACL4SSR master/Clash/GoogleCN.list, 构建时间 2026-11-25 17:48:00 UTC+8)
+# ACL4SSR GoogleCN (由 scripts/build.py 自托管, 来源 ACL4SSR/ACL4SSR master/Clash/GoogleCN.list, 构建时间 2026-11-26 17:29:12 UTC+8)
 # Google China
 DOMAIN-SUFFIX,265.com
 DOMAIN-SUFFIX,2mdn.net
