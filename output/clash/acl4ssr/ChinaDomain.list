@@ -1,4 +1,4 @@
-# ACL4SSR ChinaDomain (由 scripts/build.py 自托管, 来源 ACL4SSR/ACL4SSR master/Clash/ChinaDomain.list, 构建时间 2026-11-27 17:38:59 UTC+8)
+# ACL4SSR ChinaDomain (由 scripts/build.py 自托管, 来源 ACL4SSR/ACL4SSR master/Clash/ChinaDomain.list, 构建时间 2026-11-28 16:53:16 UTC+8)
 # 直连列表
 
 # MyList
@@ -385,6 +385,7 @@ DOMAIN,dota2.wmsj.cn
 DOMAIN,wmsjsteam.com
 DOMAIN,dl.steam.clngaa.com
 DOMAIN,dl.steam.ksyna.com
+DOMAIN,gstore.val.manlaxy.com
 DOMAIN,st.dl.bscstorage.net
 DOMAIN,st.dl.eccdnx.com
 DOMAIN,st.dl.pinyuncloud.com
@@ -395,6 +396,7 @@ DOMAIN,steamstatic.com.8686c.com
 
 # Tencent
 DOMAIN-SUFFIX,foxmail.com
+DOMAIN-SUFFIX,gcloudsvcs.com
 DOMAIN-SUFFIX,gtimg.com
 DOMAIN-SUFFIX,idqqimg.com
 DOMAIN-SUFFIX,igamecj.com
@@ -725,3 +727,9 @@ DOMAIN-SUFFIX,zhongsou.com
 DOMAIN-SUFFIX,zhuihd.com
 DOMAIN-SUFFIX,cmbchina.com
 DOMAIN-SUFFIX,95516.com
+DOMAIN,cn.download.nvidia.com
+DOMAIN-SUFFIX,made-in-china.com
+DOMAIN-SUFFIX,micstatic.com
+DOMAIN-SUFFIX,focuschina.com
+DOMAIN-SUFFIX,vemic.com
+DOMAIN-SUFFIX,trademessenger.com

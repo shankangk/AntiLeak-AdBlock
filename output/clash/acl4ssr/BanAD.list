@@ -1,4 +1,4 @@
-# ACL4SSR BanAD (由 scripts/build.py 自托管, 来源 ACL4SSR/ACL4SSR master/Clash/BanAD.list, 构建时间 2026-11-27 17:38:59 UTC+8)
+# ACL4SSR BanAD (由 scripts/build.py 自托管, 来源 ACL4SSR/ACL4SSR master/Clash/BanAD.list, 构建时间 2026-11-28 16:53:16 UTC+8)
 # 本碎片只包含常见广告关键字、广告联盟。无副作用，放心使用
 
 # 广告关键词
@@ -332,7 +332,6 @@ DOMAIN-SUFFIX,stg8.com
 DOMAIN-SUFFIX,switchadhub.com
 DOMAIN-SUFFIX,sycbbs.com
 DOMAIN-SUFFIX,synacast.com
-DOMAIN-SUFFIX,sysdig.com
 DOMAIN-SUFFIX,talkingdata.com
 DOMAIN-SUFFIX,talkingdata.net
 DOMAIN-SUFFIX,tansuotv.com
